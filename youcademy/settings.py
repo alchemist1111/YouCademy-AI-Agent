@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import environ
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -44,9 +45,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Local apps
+    'accounts',
     
     # Third party apps
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'drf_yasg',
 ]
@@ -134,5 +137,24 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Custom user configuration
+AUTH_USER_MODEL = 'accounts.User'
+
+# REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    )
+}
+
 # CORS configuration
 CORS_ALLOW_ALL_ORIGINS = True
+
+# JWT configuration
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=env.int("ACCESS_TOKEN_LIFETIME")),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("REFRESH_TOKEN_LIFETIME")),
+    "ALGORITHM": env("JWT_ALGORITHM"),
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
