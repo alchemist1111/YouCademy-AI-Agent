@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password
+import re
 
 User = get_user_model()
 
@@ -29,6 +31,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['user_id', 'first_name', 'last_name', 'email', 'phone_number', 'password', 'password_confirmation']
     
+    def validate_password(self, value):
+        """Check password strength"""
+        if len(value) < 8:
+            raise serializers.ValidationError('Password must be at least 8 characters.')
+        if not re.search(r"[A-Z]", value):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
+        if not re.search(r"[0-9]", value):
+            raise serializers.ValidationError("Password must contain at least one number.")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise serializers.ValidationError("Password must contain at least one special character.")
+        return value    
+    
     def validate(self, data):
         """Ensure password and password confirmation match"""
         if data['password'] != data['password_confirmation']:
@@ -42,3 +56,60 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.set_password(password) # Hash the password
         user.save()
         return user
+
+# User update serializer
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+    password_confirmation = serializers.CharField(write_only=True, required=False)
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'password', 'password_confirmation', 'is_active', 'is_staff']
+    
+    def validate_email(self, value):
+        pass
+    
+    def validate_phone_number(self, value):
+        pass
+    
+    def validate_password(self, value):
+        """Check password strength"""
+        if len(value) < 8:
+            raise serializers.ValidationError('Password must be at least 8 characters.')
+        if not re.search(r"[A-Z]", value):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
+        if not re.search(r"[0-9]", value):
+            raise serializers.ValidationError("Password must contain at least one number.")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise serializers.ValidationError("Password must contain at least one special character.")
+        return value
+    
+    def validate(self, data):
+        """Ensure that password and password_confirmation match"""
+        password = data.get('password')
+        password_confirmation = data.get('password_confirmation')
+        
+        # Check if both password and password_confirmation are provided
+        if password and password_confirmation:
+            if password != password_confirmation:
+                raise serializers.ValidationError('Passwords must match.')
+        return data
+            
+        
+    
+    def update(self, instance, validated_data):
+        """Update the user instance with new data"""
+        
+        # Handle password hash before saving it, if password is provided
+        password = validated_data.pop('password', None)
+        if password:
+            instance.password = make_password(password)
+            
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+        instance.is_staff = validated_data.get('is_staff', instance.is_staff)
+        instance.save()
+        return instance        
