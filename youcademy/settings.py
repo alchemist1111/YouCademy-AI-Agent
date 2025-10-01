@@ -155,6 +155,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # JWT configuration
 SIMPLE_JWT = {
+    'USER_ID_FIELD': env('JWT_USER_ID_FIELD'),
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=env.int("ACCESS_TOKEN_LIFETIME")),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("REFRESH_TOKEN_LIFETIME")),
     "ALGORITHM": env("JWT_ALGORITHM"),

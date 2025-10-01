@@ -59,6 +59,7 @@ class UserLoginAPIView(APIView):
         - Returns JWT tokens (access and refresh tokens) on successful login.
     """ 
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
            
     def post(self, request, *args, **kwargs):
         # Extract email and password from request data
