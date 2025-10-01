@@ -51,6 +51,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         """Create a new user instance with hashed password"""
+        validated_data.pop('password_confirmation')
         password = validated_data.pop('password')
         user = User.objects.create(**validated_data)
         user.set_password(password) # Hash the password
