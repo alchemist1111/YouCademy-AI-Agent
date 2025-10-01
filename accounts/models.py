@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import UserManager
+from .utils import generate_user_id 
 
 # User model
 class User(AbstractUser):
+    user_id = models.UUIDField(primary_key=True, default=generate_user_id, editable=False, unique=True)
     username = None
     email = models.EmailField(unique=True)
     phone_number = models.CharField(blank=True, null=True)
