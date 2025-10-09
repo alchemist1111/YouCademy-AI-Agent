@@ -23,6 +23,9 @@ class User(AbstractUser):
     def __str__(self):
         return f'Name: {self.first_name} {self.last_name} Email: ({self.email})'
     
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+    
 # User profile
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
