@@ -14,11 +14,10 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['full_name']
     
     objects = UserManager()
-    
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
     
     def __str__(self):
         return f'Name: {self.first_name} {self.last_name} Email: ({self.email})'
